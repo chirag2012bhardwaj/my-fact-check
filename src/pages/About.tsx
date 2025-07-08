@@ -12,14 +12,9 @@ const About: React.FC = () => {
 
   const team = [
     {
-      name: 'Marcus Rodriguez',
-      role: 'Chief Technology Officer',
-      expertise: 'Distributed Systems, Cybersecurity',
-    },
-    {
-      name: 'Yuki Tanaka',
-      role: 'UX Design Lead',
-      expertise: 'Human-Computer Interaction, Accessibility',
+      name: 'CHIRAG BHARDWAJ',
+      role: 'CSE Student',
+      hobbies: 'Exploring Tech. and Innovation',
     },
   ];
 
@@ -192,7 +187,7 @@ const About: React.FC = () => {
                   {member.role}
                 </p>
                 <p className="text-gray-300 text-sm leading-relaxed">
-                  {member.expertise}
+                  {member.hobbies}
                 </p>
               </motion.div>
             ))}

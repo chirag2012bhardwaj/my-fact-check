@@ -6,6 +6,8 @@ import FactResult from './FactResult';
 type ContentType = 'text' | 'url' | 'image' | 'video';
 type VerificationStatus = 'idle' | 'checking' | 'complete';
 
+
+
 interface VerificationResult {
   verdict: 'TRUE' | 'FALSE' | 'PARTIAL';
   confidence: number;
@@ -15,6 +17,7 @@ interface VerificationResult {
 }
 
 const FactChecker: React.FC = () => {
+  const [securityLock] = useState (true);
   const [activeTab, setActiveTab] = useState<ContentType>('text');
   const [content, setContent] = useState('');
   const [status, setStatus] = useState<VerificationStatus>('idle');
@@ -74,35 +77,69 @@ const FactChecker: React.FC = () => {
     switch (activeTab) {
       case 'text':
         return (
-          <textarea
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Paste the text you want to fact-check here..."
-            className="w-full h-32 bg-matte-gray border border-gray-600 rounded-lg p-4 text-snow-white placeholder-gray-400 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan focus:ring-opacity-50 transition-all duration-300 resize-none"
-          />
+
+          <div className=" relative w-full">
+              <textarea
+                  className="w-full h-32 bg-matte-gray border border-gray-600 rounded-lg p-4 text-snow-white placeholder-gray-400 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan focus:ring-opacity-50 transition-all duration-300 resize-none"
+                  rows={5}
+                  value={content}
+                  onChange={(e) => {
+                  if (!securityLock) {
+                   setContent(e.target.value);
+                  }
+                  }}
+                  placeholder={securityLock ? "Security Testing in progress, Input is Disabled." : "Paste the text you want to fact-check here..."}
+                  disabled={securityLock}
+              />
+
+              {securityLock && (
+                <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 bg-opacity-100 z-10">
+                  <p className='text-snow-white text-center'>
+                  Security Testing in Progress <br />
+                  Input Temporarily Disabled.
+                  </p>
+                </div>
+              )}
+
+          </div>
         );
+
+
       case 'url':
         return (
-          <input
-            type="url"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="https://example.com/article-to-verify"
-            className="w-full bg-matte-gray border border-gray-600 rounded-lg p-4 text-snow-white placeholder-gray-400 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan focus:ring-opacity-50 transition-all duration-300"
-          />
+          <div className='relative'>
+            <input
+                type="url"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                placeholder="https://example.com/article-to-verify"
+                className="w-full bg-matte-gray border border-gray-600 rounded-lg p-4 text-snow-white placeholder-gray-400 focus:border-neon-cyan focus:ring-2 focus:ring-neon-cyan focus:ring-opacity-50 transition-all duration-300"
+                disabled={securityLock}
+            />
+            {securityLock && (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 bg-opacity-100 z-10">
+                <p className='text-snow-white text-center text-sm'>
+                  Security Testing in Progress <br/>
+                  Url Upload Disabled.
+                </p>
+              </div>
+            )}
+          </div>
         );
+
       case 'image':
       case 'video':
         return (
-          <div className="border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-neon-cyan transition-colors duration-300">
+          <div className=" relative border-2 border-dashed border-gray-600 rounded-lg p-8 text-center hover:border-neon-cyan transition-colors duration-300">
             <input
               type="file"
               accept={activeTab === 'image' ? 'image/*' : 'video/*'}
               onChange={handleFileUpload}
               className="hidden"
               id="file-upload"
+              disabled={securityLock}
             />
-            <label htmlFor="file-upload" className="cursor-pointer">
+            <label htmlFor="file-upload" className={`cursor-pointer $ {securityLock ? 'pointer-events-none opacity-50' : ''}`}>
               <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
               <p className="text-gray-400">
                 Click to upload {activeTab} or drag and drop
@@ -113,6 +150,14 @@ const FactChecker: React.FC = () => {
             </label>
             {content && (
               <p className="mt-4 text-neon-green">Selected: {content}</p>
+            )}
+            {securityLock && (
+              <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 bg-opacity-100 z-10">
+                <p className='text-snow-white text-center text-sm'>
+                  Security Testing in Progress <br/>
+                  File Upload Disabled.
+                </p>
+              </div>
             )}
           </div>
         );
@@ -150,11 +195,10 @@ const FactChecker: React.FC = () => {
                     setResult(null);
                     setStatus('idle');
                   }}
-                  className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-300 mx-1 mb-2 ${
-                    activeTab === tab.id
+                  className={`flex items-center space-x-2 px-6 py-3 rounded-full transition-all duration-300 mx-1 mb-2 ${activeTab === tab.id
                       ? 'bg-gradient-to-r from-neon-green to-neon-cyan text-matte-black font-semibold'
                       : 'bg-matte-black text-gray-400 hover:text-snow-white hover:bg-matte-gray'
-                  }`}
+                    }`}
                 >
                   <tab.icon className="w-5 h-5" />
                   <span>{tab.label}</span>
